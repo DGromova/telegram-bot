@@ -2,8 +2,8 @@
 
 -- changeset daria:1
 -- preconditions onFail:MARK_RAN
--- precondition-sql-check expectedResult:0 SELECT COUNT(*) FROM notification_task
-CREATE TABLE notification_task (
+--preconditions not tableExists tableName:Notification_task
+CREATE TABLE Notification_task (
     id BIGSERIAL PRIMARY KEY,
     chatId BIGSERIAL NOT NULL,
     notification TEXT NOT NULL,
