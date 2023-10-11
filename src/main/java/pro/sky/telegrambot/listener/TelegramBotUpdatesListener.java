@@ -20,7 +20,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
@@ -37,8 +36,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         notification_taskMapper = notificationTaskMapper;
         notification_taskRepository = notificationTaskRepository;
     }
-
-
 
     @PostConstruct
     public void init() {
