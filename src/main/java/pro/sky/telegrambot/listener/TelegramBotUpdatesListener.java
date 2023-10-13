@@ -14,7 +14,10 @@ import pro.sky.telegrambot.mapper.Notification_taskMapper;
 import pro.sky.telegrambot.repository.Notification_taskRepository;
 
 import javax.annotation.PostConstruct;
+import javax.swing.text.DateFormatter;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -46,41 +49,49 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     public int process(List<Update> updates) {
         updates.forEach(update -> {
             logger.info("Processing update: {}", update);
-            String chatId = update.message().chat().id().toString();
-            String messageText = update.message().text();
             // Process your updates here
-            if (!messageText.equals(null)) {
-                if (messageText.equals("/start")) {
+            String chatId = update.message().chat().id().toString();
+            if (update.message().text() != null) {
+                String messageText = update.message().text();
+                if (("/start").equals(messageText)) {
                     telegramBot.execute(new SendMessage(
                             chatId, "Hello! To create a task, write a message in the form: 01.01.2022 20:00 Buy cat food")
                     );
                 }
 
-                boolean check = messageText.matches("([0-9\\.\\:\\s]{16})(\\s)([А-яA-z\\s\\d\\D]+)");
+                boolean check = messageText.matches("([0-9\\.]{10})(\\s)([0-9\\:]{5})(\\s)([А-яA-z\\s\\d\\D]+)");
 
-                if (!check & !messageText.equals("/start")) {
+                if (!check & !("/start").equals(messageText)) {
                     telegramBot.execute(new SendMessage(
                             chatId, "To create a task, write a message in the form: 01.01.2022 20:00 Buy cat food")
                     );
                 }
 
-                Pattern pattern = Pattern.compile("([0-9\\.\\:\\s]{16})(\\s)([А-яA-z\\s\\d\\D]+)");
+                Pattern pattern = Pattern.compile("([0-9\\.]{10})(\\s)([0-9\\:]{5})(\\s)([А-яA-z\\s\\d\\D]+)");
                 Matcher matcher = pattern.matcher(messageText);
 
                 while (matcher.find()) {
-                    String dateTime = matcher.group(1);
-                    String item = matcher.group(3);
+                    String date = matcher.group(1);
+                    String time = matcher.group(3);
+                    String dateTime = date + " " + time;
+                    String item = matcher.group(5);
                     LocalDateTime localDateTime = LocalDateTime.parse(
                             dateTime, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
                     );
-                    notification_taskMapper.toDto(
-                            notification_taskRepository.save(
-                                    notification_taskMapper.toEntity(
-                                            new Notification_taskDtoIn(Long.parseLong(chatId), item, localDateTime)))
-                    );
-                    telegramBot.execute(new SendMessage(
-                            chatId, "Task successfully added")
-                    );
+
+
+                    if (LocalDateTime.now().isAfter(localDateTime)) {
+                        telegramBot.execute(new SendMessage(chatId, "Invalid date"));
+                    } else {
+                        notification_taskMapper.toDto(
+                                notification_taskRepository.save(
+                                        notification_taskMapper.toEntity(
+                                                new Notification_taskDtoIn(Long.parseLong(chatId), item, localDateTime)))
+                        );
+                        telegramBot.execute(new SendMessage(
+                                chatId, "Task successfully added")
+                        );
+                    }
                 }
 
                 run();

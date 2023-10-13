@@ -13,4 +13,5 @@ public interface Notification_taskRepository extends JpaRepository<Notification_
     @Query(value = "SELECT * FROM notification_task WHERE dataTime = :nowDataTime", nativeQuery = true)
     List <Notification_task> findNotificationTasksWithNowDataTime(@Param("nowDataTime") LocalDateTime nowDataTime);
 
+
 }
