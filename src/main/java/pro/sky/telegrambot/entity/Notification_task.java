@@ -1,31 +1,25 @@
 package pro.sky.telegrambot.entity;
 
+import org.springframework.data.annotation.Id;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 
 @Entity
+@Table(name = "notification_task")
 public class Notification_task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "chatid")
     private Long chatId;
+
+    @Column(length = 4096, nullable = false)
     private String notification;
-    @Column(name = "datatime")
+
+    @Column(name = "datatime", nullable = false)
     private LocalDateTime dateTime;
-
-    public Notification_task(Long id, Long chatId, String notification, LocalDateTime dateTime) {
-        this.id = id;
-        this.chatId = chatId;
-        this.notification = notification;
-        this.dateTime = dateTime;
-    }
-
-    public Notification_task() {
-
-    }
 
     public Long getId() {
         return id;
@@ -59,26 +53,4 @@ public class Notification_task {
         this.dateTime = dateTime;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Notification_task that = (Notification_task) o;
-        return Objects.equals(id, that.id) && Objects.equals(chatId, that.chatId) && Objects.equals(notification, that.notification) && Objects.equals(dateTime, that.dateTime);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, chatId, notification, dateTime);
-    }
-
-    @Override
-    public String toString() {
-        return "Notification_task{" +
-                "id=" + id +
-                ", chatId=" + chatId +
-                ", notification='" + notification + '\'' +
-                ", dateTime=" + dateTime +
-                '}';
-    }
 }

@@ -7,19 +7,14 @@ import com.pengrad.telegrambot.request.SendMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import pro.sky.telegrambot.dto.Notification_taskDtoIn;
-import pro.sky.telegrambot.mapper.Notification_taskMapper;
+import pro.sky.telegrambot.entity.Notification_task;
 import pro.sky.telegrambot.repository.Notification_taskRepository;
+import pro.sky.telegrambot.timer.Notification_taskNotifier;
 
 import javax.annotation.PostConstruct;
-import javax.swing.text.DateFormatter;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,12 +27,13 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     @Autowired
     private TelegramBot telegramBot;
 
-    private final Notification_taskMapper notification_taskMapper;
     private final Notification_taskRepository notification_taskRepository;
+    private final Notification_taskNotifier notification_taskNotifier;
 
-    public TelegramBotUpdatesListener(Notification_taskMapper notificationTaskMapper, Notification_taskRepository notificationTaskRepository) {
-        notification_taskMapper = notificationTaskMapper;
+    public TelegramBotUpdatesListener(TelegramBot telegramBot, Notification_taskRepository notificationTaskRepository, Notification_taskNotifier notificationTaskNotifier) {
+        this.telegramBot = telegramBot;
         notification_taskRepository = notificationTaskRepository;
+        notification_taskNotifier = notificationTaskNotifier;
     }
 
     @PostConstruct
@@ -49,8 +45,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     public int process(List<Update> updates) {
         updates.forEach(update -> {
             logger.info("Processing update: {}", update);
-            // Process your updates here
-            String chatId = update.message().chat().id().toString();
+            // Process updates here
+            Long chatId = update.message().chat().id();
             if (update.message().text() != null) {
                 String messageText = update.message().text();
                 if (("/start").equals(messageText)) {
@@ -81,12 +77,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
 
                     if (LocalDateTime.now().isAfter(localDateTime)) {
-                        telegramBot.execute(new SendMessage(chatId, "Invalid date"));
+                        telegramBot.execute(new SendMessage(chatId, "Invalid date or time"));
                     } else {
-                        notification_taskMapper.toDto(
-                                notification_taskRepository.save(
-                                        notification_taskMapper.toEntity(
-                                                new Notification_taskDtoIn(Long.parseLong(chatId), item, localDateTime)))
+                        notification_taskRepository.save(
+                                new Notification_task(chatId, item, localDateTime)
                         );
                         telegramBot.execute(new SendMessage(
                                 chatId, "Task successfully added")
@@ -94,19 +88,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     }
                 }
 
-                run();
+                notification_taskNotifier.run();
             }
         });
 
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
-    }
-
-    @Scheduled(cron = "0 0/1 * * * *")
-    public void run() {
-        LocalDateTime nowDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-
-        notification_taskRepository.findNotificationTasksWithNowDataTime(nowDateTime).stream()
-                .forEach(n -> telegramBot.execute(new SendMessage(n.getChatId(), n.getNotification())));
     }
 
 }
