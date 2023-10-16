@@ -1,7 +1,5 @@
 package pro.sky.telegrambot.entity;
 
-import org.springframework.data.annotation.Id;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -21,11 +19,13 @@ public class NotificationTask {
     @Column(name = "datatime", nullable = false)
     private LocalDateTime dateTime;
 
-    public NotificationTask(Long id, Long chatId, String notification, LocalDateTime dateTime) {
-        this.id = id;
+    public NotificationTask(Long chatId, String notification, LocalDateTime dateTime) {
         this.chatId = chatId;
         this.notification = notification;
         this.dateTime = dateTime;
+    }
+
+    public NotificationTask() {
     }
 
     public Long getId() {

@@ -14,4 +14,5 @@ public interface NotificationTaskRepository extends JpaRepository<NotificationTa
     List <NotificationTask> findNotificationTasksWithNowDataTime(@Param("nowDataTime") LocalDateTime nowDataTime);
 
 
+
 }
