@@ -8,9 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pro.sky.telegrambot.entity.Notification_task;
-import pro.sky.telegrambot.repository.Notification_taskRepository;
-import pro.sky.telegrambot.timer.Notification_taskNotifier;
+import pro.sky.telegrambot.entity.NotificationTask;
+import pro.sky.telegrambot.repository.NotificationTaskRepository;
+import pro.sky.telegrambot.timer.NotificationTaskNotifier;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
@@ -27,12 +27,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     @Autowired
     private TelegramBot telegramBot;
 
-    private final Notification_taskRepository notification_taskRepository;
-    private final Notification_taskNotifier notification_taskNotifier;
+    private final NotificationTaskRepository notificationTaskRepository;
+    private final NotificationTaskNotifier notification_taskNotifier;
 
-    public TelegramBotUpdatesListener(TelegramBot telegramBot, Notification_taskRepository notificationTaskRepository, Notification_taskNotifier notificationTaskNotifier) {
+    public TelegramBotUpdatesListener(TelegramBot telegramBot, NotificationTaskRepository notificationTaskRepository, NotificationTaskNotifier notificationTaskNotifier) {
         this.telegramBot = telegramBot;
-        notification_taskRepository = notificationTaskRepository;
+        this.notificationTaskRepository = notificationTaskRepository;
         notification_taskNotifier = notificationTaskNotifier;
     }
 
@@ -79,8 +79,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     if (LocalDateTime.now().isAfter(localDateTime)) {
                         telegramBot.execute(new SendMessage(chatId, "Invalid date or time"));
                     } else {
-                        notification_taskRepository.save(
-                                new Notification_task(chatId, item, localDateTime)
+                        notificationTaskRepository.save(
+                                new NotificationTask(chatId, item, localDateTime)
                         );
                         telegramBot.execute(new SendMessage(
                                 chatId, "Task successfully added")

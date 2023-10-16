@@ -4,18 +4,18 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import pro.sky.telegrambot.repository.Notification_taskRepository;
+import pro.sky.telegrambot.repository.NotificationTaskRepository;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 @Component
-public class Notification_taskNotifier {
+public class NotificationTaskNotifier {
 
-    private final Notification_taskRepository notification_taskRepository;
+    private final NotificationTaskRepository notification_taskRepository;
     private final TelegramBot telegramBot;
 
-    public Notification_taskNotifier(Notification_taskRepository notificationTaskRepository, TelegramBot telegramBot) {
+    public NotificationTaskNotifier(NotificationTaskRepository notificationTaskRepository, TelegramBot telegramBot) {
         notification_taskRepository = notificationTaskRepository;
         this.telegramBot = telegramBot;
     }

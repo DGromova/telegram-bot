@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "notification_task")
-public class Notification_task {
+public class NotificationTask {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,6 +20,13 @@ public class Notification_task {
 
     @Column(name = "datatime", nullable = false)
     private LocalDateTime dateTime;
+
+    public NotificationTask(Long id, Long chatId, String notification, LocalDateTime dateTime) {
+        this.id = id;
+        this.chatId = chatId;
+        this.notification = notification;
+        this.dateTime = dateTime;
+    }
 
     public Long getId() {
         return id;
